@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support | Black Tide Software</title>
+  <meta
+    name="description"
+    content="Support information for Black Tide Software and Death Atlas."
+  />
+  <style>
+    :root {
+      --bg: #0b0c10;
+      --panel: #12141a;
+      --text: #f3f5f7;
+      --muted: #b8c0cc;
+      --line: #2a2f39;
+      --accent: #5ea0ff;
+      --accent-2: #8bb8ff;
+      --max: 900px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(180deg, #090a0d 0%, #0d1015 100%);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    a {
+      color: var(--accent-2);
+      text-decoration: none;
+    }
+
+    a:hover { text-decoration: underline; }
+
+    .wrap {
+      width: min(100% - 32px, var(--max));
+      margin: 0 auto;
+    }
+
+    header {
+      padding: 20px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: rgba(11, 12, 16, 0.9);
+      position: sticky;
+      top: 0;
+      backdrop-filter: blur(10px);
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .brand span { color: var(--accent); }
+
+    .nav-links {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      font-size: 0.95rem;
+    }
+
+    main {
+      padding: 56px 0;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      margin-top: 0;
+      margin-bottom: 10px;
+      line-height: 1.1;
+    }
+
+    h2 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 1.3rem;
+    }
+
+    p, li {
+      color: var(--muted);
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    .eyebrow {
+      color: var(--accent-2);
+      text-transform: uppercase;
+      font-size: 0.82rem;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: inline-block;
+    }
+
+    footer {
+      padding: 0 0 40px;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap nav">
+      <div class="brand">Black Tide <span>Software</span></div>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="privacy.html">Privacy Policy</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <div class="card">
+        <div class="eyebrow">Black Tide Software LLC</div>
+        <h1>Support</h1>
+        <p>
+          Need help with one of our apps or have a general question? We’re happy to help.
+        </p>
+        <p>
+          General support email:<br />
+          <a href="mailto:support@blacktidessoftware.com">support@blacktidessoftware.com</a>
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Death Atlas Support</h2>
+        <p>
+          Death Atlas is an interactive map-based app for exploring historical deaths,
+          disappearances, burial locations, and notable events.
+        </p>
+        <p>
+          For Death Atlas support questions, privacy questions, bug reports, or purchase-related
+          issues, contact:<br />
+          <a href="mailto:support@deathatlas.com">support@deathatlas.com</a>
+        </p>
+        <p>
+          For subscription billing issues, Apple App Store and Google Play purchases are handled
+          directly through Apple and Google.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Common Help Topics</h2>
+        <ul>
+          <li>Questions about app features or map layers</li>
+          <li>Reporting bugs or crashes</li>
+          <li>Help with subscriptions and premium access</li>
+          <li>General business or partnership inquiries</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      &copy; 2026 Black Tide Software LLC. All rights reserved.
+    </div>
+  </footer>
+</body>
+</html>
