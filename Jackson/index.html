@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jackson</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #111;
+      color: white;
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .viewer {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 20px 70px;
+    }
+
+    #comicImage {
+      max-width: 100%;
+      max-height: 95vh;
+      object-fit: contain;
+      display: block;
+    }
+
+    .arrow {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      border: none;
+      font-size: 48px;
+      width: 60px;
+      height: 90px;
+      cursor: pointer;
+      z-index: 10;
+      border-radius: 8px;
+    }
+
+    .arrow:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    #prev {
+      left: 10px;
+    }
+
+    #next {
+      right: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .viewer {
+        padding: 10px 45px;
+      }
+
+      .arrow {
+        width: 40px;
+        height: 70px;
+        font-size: 32px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="viewer">
+    <button class="arrow" id="prev" onclick="previousImage()">&#10094;</button>
+
+    <img id="comicImage" src="Jackson%20001.png" alt="Jackson">
+
+    <button class="arrow" id="next" onclick="nextImage()">&#10095;</button>
+  </div>
+
+  <script>
+    let currentImage = 1;
+
+    function imageName(number) {
+      return `Jackson%20${String(number).padStart(3, '0')}.png`;
+    }
+
+    function showImage(number) {
+      const img = document.getElementById('comicImage');
+      const testImage = new Image();
+
+      testImage.onload = function () {
+        currentImage = number;
+        img.src = imageName(currentImage);
+      };
+
+      testImage.src = imageName(number);
+    }
+
+    function nextImage() {
+      showImage(currentImage + 1);
+    }
+
+    function previousImage() {
+      if (currentImage > 1) {
+        showImage(currentImage - 1);
+      }
+    }
+
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'ArrowRight') {
+        nextImage();
+      }
+
+      if (event.key === 'ArrowLeft') {
+        previousImage();
+      }
+    });
+  </script>
+
+</body>
+</html>
