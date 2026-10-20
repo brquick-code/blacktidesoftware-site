@@ -11,7 +11,6 @@
     :root {
       --bg: #0b0c10;
       --panel: #12141a;
-      --panel-2: #171a21;
       --text: #f3f5f7;
       --muted: #b8c0cc;
       --line: #2a2f39;
@@ -35,11 +34,7 @@
       line-height: 1.6;
     }
 
-    a {
-      color: var(--accent-2);
-      text-decoration: none;
-    }
-
+    a { color: var(--accent-2); text-decoration: none; }
     a:hover { text-decoration: underline; }
 
     .wrap {
@@ -50,7 +45,7 @@
     header {
       padding: 20px 0;
       border-bottom: 1px solid rgba(255,255,255,0.08);
-      background: rgba(11, 12, 16, 0.9);
+      background: rgba(11,12,16,0.9);
       position: sticky;
       top: 0;
       z-index: 10;
@@ -65,11 +60,7 @@
       flex-wrap: wrap;
     }
 
-    .brand {
-      font-size: 1.05rem;
-      font-weight: 700;
-    }
-
+    .brand { font-size: 1.05rem; font-weight: 700; }
     .brand span { color: var(--accent); }
 
     .nav-links {
@@ -113,10 +104,7 @@
       max-width: 650px;
     }
 
-    form {
-      display: grid;
-      gap: 18px;
-    }
+    form { display: grid; gap: 18px; }
 
     .grid {
       display: grid;
@@ -156,10 +144,7 @@
       box-shadow: 0 0 0 3px rgba(94,160,255,0.13);
     }
 
-    textarea {
-      min-height: 110px;
-      resize: vertical;
-    }
+    textarea { min-height: 110px; resize: vertical; }
 
     .dropzone {
       position: relative;
@@ -201,17 +186,8 @@
       font-weight: 800;
     }
 
-    .drop-title {
-      display: block;
-      font-weight: 750;
-      margin-bottom: 4px;
-    }
-
-    .drop-copy,
-    .file-help {
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
+    .drop-title { display: block; font-weight: 750; margin-bottom: 4px; }
+    .drop-copy, .file-help { color: var(--muted); font-size: 0.9rem; }
 
     .file-name {
       display: none;
@@ -224,10 +200,7 @@
       overflow-wrap: anywhere;
     }
 
-    .progress-wrap {
-      display: none;
-      gap: 8px;
-    }
+    .progress-wrap { display: none; gap: 8px; }
 
     .progress-row {
       display: flex;
@@ -330,9 +303,7 @@
       <section class="card" aria-labelledby="page-title">
         <div class="eyebrow">Black Tides Software LLC</div>
         <h1 id="page-title">Upload a File</h1>
-        <p class="intro">
-          Use this page to securely send a file to Black Tides Software. Uploaded files are stored privately and are not publicly listed.
-        </p>
+        <p class="intro">Use this page to securely send a file to Black Tides Software. Uploaded files are stored privately and are not publicly listed.</p>
 
         <form id="upload-form">
           <div class="grid">
@@ -371,7 +342,7 @@
               <span class="drop-copy">Documents, images, audio, video, or ZIP files</span>
               <div class="file-name" id="file-name"></div>
             </div>
-            <div class="file-help">Maximum file size: 25 MB.</div>
+            <div class="file-help">Maximum file size: 250 MB.</div>
           </div>
 
           <div class="progress-wrap" id="progress-wrap">
@@ -386,9 +357,7 @@
           <button id="submit" type="submit">Upload File</button>
         </form>
 
-        <div class="privacy-note">
-          Files submitted here are intended only for Black Tides Software. Do not upload passwords, Social Security numbers, payment-card numbers, or other highly sensitive credentials.
-        </div>
+        <div class="privacy-note">Files submitted here are intended only for Black Tides Software. Do not upload passwords, Social Security numbers, payment-card numbers, or other highly sensitive credentials.</div>
       </section>
     </div>
   </main>
@@ -400,7 +369,7 @@
   <script type="module">
     import { upload } from 'https://esm.sh/@vercel/blob@2.8.2/client?bundle';
 
-    const MAX_BYTES = 25 * 1024 * 1024;
+    const MAX_BYTES = 250 * 1024 * 1024;
     const form = document.getElementById('upload-form');
     const fileInput = document.getElementById('file');
     const dropzone = document.getElementById('dropzone');
@@ -455,7 +424,7 @@
       }
 
       if (file.size > MAX_BYTES) {
-        setStatus('That file is larger than the 25 MB limit.', 'error');
+        setStatus('That file is larger than the 250 MB limit.', 'error');
         return;
       }
 
