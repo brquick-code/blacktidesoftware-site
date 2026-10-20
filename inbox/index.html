@@ -16,6 +16,7 @@
       --line: #2b313c;
       --accent: #6ba8ff;
       --danger: #ff8f8f;
+      --danger-bg: #35191d;
       --max: 1050px;
     }
     * { box-sizing: border-box; }
@@ -32,12 +33,15 @@
     .sub { color: var(--muted); margin: 8px 0 0; }
     main { padding: 28px 0 48px; }
     .toolbar { display:flex; justify-content:space-between; gap:16px; align-items:center; margin-bottom:18px; flex-wrap:wrap; }
+    .toolbar-right { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
     .count { color: var(--muted); }
-    button, .download {
-      appearance:none; border:0; border-radius:11px; padding:10px 14px; font:inherit; font-weight:750;
-      background:var(--accent); color:#07111f; cursor:pointer; text-decoration:none; display:inline-block;
+    select, button, .download, .manage {
+      appearance:none; border:1px solid var(--line); border-radius:11px; padding:10px 14px; font:inherit; font-weight:750;
     }
+    select { background:var(--panel2); color:var(--text); }
+    button, .download { background:var(--accent); color:#07111f; cursor:pointer; text-decoration:none; display:inline-block; border-color:transparent; }
     button:disabled { opacity:.55; cursor:not-allowed; }
+    .manage { background:var(--danger-bg); color:var(--danger); border-color:#683038; cursor:pointer; }
     .list { display:grid; gap:14px; }
     .item { background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.025)); border:1px solid var(--line); border-radius:16px; padding:18px; }
     .top { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; }
@@ -48,11 +52,12 @@
     .label { color:var(--muted); font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; font-weight:750; }
     .value { margin-top:2px; overflow-wrap:anywhere; }
     .notes { margin-top:14px; padding-top:14px; border-top:1px solid var(--line); white-space:pre-wrap; }
-    .actions { margin-top:16px; }
+    .actions { margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; }
     .empty, .error { border:1px dashed var(--line); border-radius:16px; padding:30px; color:var(--muted); text-align:center; }
     .error { color:var(--danger); }
+    .hint { color:var(--muted); font-size:.82rem; margin-top:8px; }
     footer { color:var(--muted); text-align:center; padding:0 0 36px; font-size:.9rem; }
-    @media (max-width:650px){ .meta { grid-template-columns:1fr; } }
+    @media (max-width:650px){ .meta { grid-template-columns:1fr; } .toolbar-right { width:100%; } select { flex:1; min-width:0; } }
   </style>
 </head>
 <body>
@@ -66,7 +71,19 @@
     <div class="wrap">
       <div class="toolbar">
         <div class="count" id="count">Loading uploads…</div>
-        <button id="refresh" type="button">Refresh</button>
+        <div class="toolbar-right">
+          <select id="sort" aria-label="Sort uploads">
+            <option value="date-desc">Date — newest first</option>
+            <option value="date-asc">Date — oldest first</option>
+            <option value="name-asc">Name — A to Z</option>
+            <option value="name-desc">Name — Z to A</option>
+            <option value="size-desc">Size — largest first</option>
+            <option value="size-asc">Size — smallest first</option>
+            <option value="sender-asc">Sender — A to Z</option>
+            <option value="type-asc">File type — A to Z</option>
+          </select>
+          <button id="refresh" type="button">Refresh</button>
+        </div>
       </div>
       <div class="list" id="list"></div>
     </div>
@@ -74,9 +91,12 @@
   <footer><div class="wrap">Black Tides Software LLC</div></footer>
 
   <script>
+    const STORE_URL = 'https://vercel.com/ben-quicks-projects-265e8a91/~/stores/blob/store_eVCToplWy2rjHOBs';
     const listEl = document.getElementById('list');
     const countEl = document.getElementById('count');
     const refreshBtn = document.getElementById('refresh');
+    const sortEl = document.getElementById('sort');
+    let uploadsState = [];
 
     function escapeHtml(value) {
       return String(value ?? '')
@@ -93,29 +113,83 @@
       return d.toLocaleString();
     }
 
-    function render(uploads) {
+    function formatBytes(value) {
+      const bytes = Number(value || 0);
+      if (!Number.isFinite(bytes) || bytes <= 0) return 'Unknown';
+      const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+      const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+      const amount = bytes / Math.pow(1024, index);
+      return `${amount.toFixed(index === 0 ? 0 : amount >= 10 ? 1 : 2)} ${units[index]}`;
+    }
+
+    function sortedUploads() {
+      const [field, direction] = sortEl.value.split('-');
+      const multiplier = direction === 'desc' ? -1 : 1;
+      return [...uploadsState].sort((a, b) => {
+        let av;
+        let bv;
+        if (field === 'date') {
+          av = new Date(a.uploadedAt || 0).getTime();
+          bv = new Date(b.uploadedAt || 0).getTime();
+          return (av - bv) * multiplier;
+        }
+        if (field === 'size') {
+          return (Number(a.size || 0) - Number(b.size || 0)) * multiplier;
+        }
+        if (field === 'sender') {
+          av = String(a.name || '').toLocaleLowerCase();
+          bv = String(b.name || '').toLocaleLowerCase();
+        } else if (field === 'type') {
+          av = String(a.contentType || '').toLocaleLowerCase();
+          bv = String(b.contentType || '').toLocaleLowerCase();
+        } else {
+          av = String(a.originalFilename || '').toLocaleLowerCase();
+          bv = String(b.originalFilename || '').toLocaleLowerCase();
+        }
+        return av.localeCompare(bv) * multiplier;
+      });
+    }
+
+    function render() {
+      const uploads = sortedUploads();
       countEl.textContent = `${uploads.length} upload${uploads.length === 1 ? '' : 's'}`;
       if (!uploads.length) {
         listEl.innerHTML = '<div class="empty">No uploads yet.</div>';
         return;
       }
 
-      listEl.innerHTML = uploads.map((item) => `
+      listEl.innerHTML = uploads.map((item, index) => `
         <article class="item">
           <div class="top">
             <div class="filename">${escapeHtml(item.originalFilename || 'Uploaded file')}</div>
             <div class="date">${escapeHtml(formatDate(item.uploadedAt))}</div>
           </div>
           <div class="meta">
+            <div class="field"><div class="label">Size</div><div class="value">${escapeHtml(formatBytes(item.size))}</div></div>
             <div class="field"><div class="label">Sender</div><div class="value">${escapeHtml(item.name || 'Not provided')}</div></div>
             <div class="field"><div class="label">Email</div><div class="value">${escapeHtml(item.email || 'Not provided')}</div></div>
             <div class="field"><div class="label">Type</div><div class="value">${escapeHtml(item.contentType || 'Unknown')}</div></div>
             <div class="field"><div class="label">Upload ID</div><div class="value">${escapeHtml(item.uploadId || '')}</div></div>
           </div>
           ${item.notes ? `<div class="notes"><div class="label">Notes</div><div class="value">${escapeHtml(item.notes)}</div></div>` : ''}
-          <div class="actions"><a class="download" href="${escapeHtml(item.downloadPath)}">Download</a></div>
+          <div class="actions">
+            <a class="download" href="${escapeHtml(item.downloadPath)}">Download</a>
+            <button class="manage" type="button" data-index="${index}">Manage / Delete</button>
+          </div>
+          <div class="hint">Manage / Delete opens the private Vercel Blob store and copies this file's Blob path for quick lookup.</div>
         </article>
       `).join('');
+
+      document.querySelectorAll('.manage').forEach((button) => {
+        button.addEventListener('click', async () => {
+          const item = uploads[Number(button.dataset.index)];
+          if (!item) return;
+          try {
+            await navigator.clipboard.writeText(item.pathname || item.originalFilename || '');
+          } catch {}
+          window.open(STORE_URL, '_blank', 'noopener,noreferrer');
+        });
+      });
     }
 
     async function load() {
@@ -126,7 +200,8 @@
         const response = await fetch('/api/inbox-list', { cache: 'no-store' });
         if (!response.ok) throw new Error(`Request failed (${response.status})`);
         const data = await response.json();
-        render(Array.isArray(data.uploads) ? data.uploads : []);
+        uploadsState = Array.isArray(data.uploads) ? data.uploads : [];
+        render();
       } catch (error) {
         countEl.textContent = 'Unable to load uploads';
         listEl.innerHTML = `<div class="error">${escapeHtml(error.message || 'Unable to load uploads.')}</div>`;
@@ -135,6 +210,7 @@
       }
     }
 
+    sortEl.addEventListener('change', render);
     refreshBtn.addEventListener('click', load);
     load();
   </script>
