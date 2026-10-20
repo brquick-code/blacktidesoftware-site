@@ -1,4 +1,4 @@
-import { get, list } from '@vercel/blob';
+import { get, head, list } from '@vercel/blob';
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -18,6 +18,20 @@ async function readJson(pathname) {
   return JSON.parse(text);
 }
 
+async function getFileDetails(pathname) {
+  try {
+    const details = await head(pathname);
+    return {
+      size: Number(details?.size || 0),
+      contentType: details?.contentType || 'application/octet-stream',
+      uploadedAt: details?.uploadedAt ? new Date(details.uploadedAt).toISOString() : null,
+    };
+  } catch (error) {
+    console.error('Failed to read blob details', pathname, error);
+    return { size: 0, contentType: 'application/octet-stream', uploadedAt: null };
+  }
+}
+
 export default {
   async fetch(request) {
     if (request.method !== 'GET') return json({ error: 'Method not allowed.' }, 405);
@@ -35,18 +49,26 @@ export default {
         }
       }
 
-      records.sort((a, b) => String(b.uploadedAt || '').localeCompare(String(a.uploadedAt || '')));
+      const enriched = await Promise.all(
+        records.map(async (item) => ({
+          item,
+          details: await getFileDetails(item.blob.pathname),
+        })),
+      );
+
+      enriched.sort((a, b) => String(b.item.uploadedAt || '').localeCompare(String(a.item.uploadedAt || '')));
 
       return json({
-        uploads: records.map((item) => ({
+        uploads: enriched.map(({ item, details }) => ({
           uploadId: item.uploadId,
-          uploadedAt: item.uploadedAt,
+          uploadedAt: item.uploadedAt || details.uploadedAt,
           name: item.name || '',
           email: item.email || '',
           notes: item.notes || '',
           originalFilename: item.originalFilename || item.blob.pathname.split('/').pop(),
           pathname: item.blob.pathname,
-          contentType: item.blob.contentType || 'application/octet-stream',
+          contentType: item.blob.contentType || details.contentType,
+          size: details.size,
           downloadPath: `/api/inbox-file?pathname=${encodeURIComponent(item.blob.pathname)}`,
         })),
         cursor: result.cursor || null,
