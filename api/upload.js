@@ -2,7 +2,7 @@ import { put } from '@vercel/blob';
 import { handleUpload } from '@vercel/blob/client';
 import { randomUUID } from 'node:crypto';
 
-const MAX_FILE_SIZE = 25 * 1024 * 1024;
+const MAX_FILE_SIZE = 250 * 1024 * 1024;
 const TOKEN_WINDOW_MS = 60 * 1000;
 const TOKEN_LIMIT_PER_WINDOW = 10;
 const tokenRequests = new Map();
