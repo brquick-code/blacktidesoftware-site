@@ -5,6 +5,12 @@ function safeDownloadName(pathname) {
   return name.replace(/[\r\n"]/g, '_');
 }
 
+function isAllowedPath(pathname) {
+  if (!pathname || pathname.length > 500) return false;
+  if (pathname.startsWith('upload-metadata/')) return false;
+  return true;
+}
+
 export default {
   async fetch(request) {
     if (request.method !== 'GET') {
@@ -14,7 +20,7 @@ export default {
     const url = new URL(request.url);
     const pathname = url.searchParams.get('pathname') || '';
 
-    if (!pathname.startsWith('incoming/')) {
+    if (!isAllowedPath(pathname)) {
       return new Response('Invalid file path', { status: 400 });
     }
 
