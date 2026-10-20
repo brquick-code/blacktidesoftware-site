@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="referrer" content="no-referrer" />
+  <title>Upload a File | Black Tides Software</title>
+  <meta name="description" content="Securely upload a file to Black Tides Software." />
+  <style>
+    :root {
+      --bg: #0b0c10;
+      --panel: #12141a;
+      --panel-2: #171a21;
+      --text: #f3f5f7;
+      --muted: #b8c0cc;
+      --line: #2a2f39;
+      --accent: #5ea0ff;
+      --accent-2: #8bb8ff;
+      --good: #76d99a;
+      --bad: #ff8a8a;
+      --max: 820px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(94,160,255,0.12), transparent 35%),
+        linear-gradient(180deg, #090a0d 0%, #0d1015 100%);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a {
+      color: var(--accent-2);
+      text-decoration: none;
+    }
+
+    a:hover { text-decoration: underline; }
+
+    .wrap {
+      width: min(100% - 32px, var(--max));
+      margin: 0 auto;
+    }
+
+    header {
+      padding: 20px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: rgba(11, 12, 16, 0.9);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .brand span { color: var(--accent); }
+
+    .nav-links {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      font-size: 0.95rem;
+    }
+
+    main { padding: 54px 0 34px; }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.025));
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 24px;
+      padding: clamp(24px, 5vw, 38px);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.3);
+    }
+
+    .eyebrow {
+      color: var(--accent-2);
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.07em;
+      font-weight: 750;
+      margin-bottom: 10px;
+      display: inline-block;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 6vw, 3.4rem);
+      line-height: 1.06;
+      margin: 0 0 12px;
+      letter-spacing: -0.03em;
+    }
+
+    .intro {
+      margin: 0 0 28px;
+      color: var(--muted);
+      font-size: 1.04rem;
+      max-width: 650px;
+    }
+
+    form {
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    label {
+      display: block;
+      color: var(--text);
+      font-weight: 650;
+      margin-bottom: 7px;
+    }
+
+    .optional {
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 0.86rem;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      padding: 12px 14px;
+      background: rgba(0,0,0,0.24);
+      color: var(--text);
+      font: inherit;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(94,160,255,0.13);
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .dropzone {
+      position: relative;
+      display: block;
+      border: 1px dashed #4a5362;
+      border-radius: 18px;
+      padding: 28px 20px;
+      text-align: center;
+      background: rgba(94,160,255,0.035);
+      transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+      cursor: pointer;
+    }
+
+    .dropzone:hover,
+    .dropzone.dragging {
+      border-color: var(--accent);
+      background: rgba(94,160,255,0.075);
+    }
+
+    .dropzone.dragging { transform: scale(1.006); }
+
+    .dropzone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .drop-icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 10px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(94,160,255,0.13);
+      color: var(--accent-2);
+      font-size: 1.35rem;
+      font-weight: 800;
+    }
+
+    .drop-title {
+      display: block;
+      font-weight: 750;
+      margin-bottom: 4px;
+    }
+
+    .drop-copy,
+    .file-help {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .file-name {
+      display: none;
+      margin-top: 12px;
+      padding: 9px 12px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.055);
+      color: var(--text);
+      font-size: 0.92rem;
+      overflow-wrap: anywhere;
+    }
+
+    .progress-wrap {
+      display: none;
+      gap: 8px;
+    }
+
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    progress {
+      width: 100%;
+      height: 12px;
+      appearance: none;
+      border: 0;
+      border-radius: 99px;
+      overflow: hidden;
+      background: #232833;
+    }
+
+    progress::-webkit-progress-bar { background: #232833; }
+    progress::-webkit-progress-value { background: var(--accent); }
+    progress::-moz-progress-bar { background: var(--accent); }
+
+    button {
+      border: 0;
+      border-radius: 13px;
+      padding: 13px 18px;
+      min-height: 48px;
+      background: linear-gradient(180deg, #6ba8ff, #4d8eea);
+      color: #06101e;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.12s ease, filter 0.12s ease, opacity 0.12s ease;
+    }
+
+    button:hover { filter: brightness(1.06); }
+    button:active { transform: translateY(1px); }
+    button:disabled { cursor: not-allowed; opacity: 0.55; }
+
+    .status {
+      display: none;
+      border-radius: 13px;
+      padding: 12px 14px;
+      font-size: 0.95rem;
+    }
+
+    .status.success {
+      display: block;
+      border: 1px solid rgba(118,217,154,0.3);
+      background: rgba(118,217,154,0.08);
+      color: var(--good);
+    }
+
+    .status.error {
+      display: block;
+      border: 1px solid rgba(255,138,138,0.3);
+      background: rgba(255,138,138,0.08);
+      color: var(--bad);
+    }
+
+    .privacy-note {
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .hp { display: none !important; }
+
+    footer {
+      padding: 0 0 40px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      text-align: center;
+    }
+
+    @media (max-width: 620px) {
+      .grid { grid-template-columns: 1fr; }
+      main { padding-top: 32px; }
+      .card { border-radius: 19px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap nav">
+      <div class="brand">Black Tides <span>Software</span></div>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="/">Home</a>
+        <a href="/support.html">Support</a>
+        <a href="/privacy.html">Privacy</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <section class="card" aria-labelledby="page-title">
+        <div class="eyebrow">Black Tides Software LLC</div>
+        <h1 id="page-title">Upload a File</h1>
+        <p class="intro">
+          Use this page to securely send a file to Black Tides Software. Uploaded files are stored privately and are not publicly listed.
+        </p>
+
+        <form id="upload-form">
+          <div class="grid">
+            <div>
+              <label for="name">Your name <span class="optional">(optional)</span></label>
+              <input id="name" name="name" type="text" maxlength="100" autocomplete="name" />
+            </div>
+            <div>
+              <label for="email">Email <span class="optional">(optional)</span></label>
+              <input id="email" name="email" type="email" maxlength="200" autocomplete="email" />
+            </div>
+          </div>
+
+          <div>
+            <label for="notes">Notes <span class="optional">(optional)</span></label>
+            <textarea id="notes" name="notes" maxlength="500" placeholder="Anything we should know about the file?"></textarea>
+          </div>
+
+          <div class="hp" aria-hidden="true">
+            <label for="website">Website</label>
+            <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <div>
+            <label>File</label>
+            <div class="dropzone" id="dropzone">
+              <input
+                id="file"
+                name="file"
+                type="file"
+                required
+                accept="image/*,audio/*,video/*,.pdf,.txt,.csv,.json,.zip,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+              />
+              <div class="drop-icon" aria-hidden="true">↑</div>
+              <span class="drop-title">Choose a file or drag it here</span>
+              <span class="drop-copy">Documents, images, audio, video, or ZIP files</span>
+              <div class="file-name" id="file-name"></div>
+            </div>
+            <div class="file-help">Maximum file size: 25 MB.</div>
+          </div>
+
+          <div class="progress-wrap" id="progress-wrap">
+            <div class="progress-row">
+              <span>Uploading…</span>
+              <span id="progress-text">0%</span>
+            </div>
+            <progress id="progress" max="100" value="0"></progress>
+          </div>
+
+          <div id="status" class="status" role="status" aria-live="polite"></div>
+          <button id="submit" type="submit">Upload File</button>
+        </form>
+
+        <div class="privacy-note">
+          Files submitted here are intended only for Black Tides Software. Do not upload passwords, Social Security numbers, payment-card numbers, or other highly sensitive credentials.
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap">&copy; 2026 Black Tides Software LLC. All rights reserved.</div>
+  </footer>
+
+  <script type="module">
+    import { upload } from 'https://esm.sh/@vercel/blob@2.8.2/client?bundle';
+
+    const MAX_BYTES = 25 * 1024 * 1024;
+    const form = document.getElementById('upload-form');
+    const fileInput = document.getElementById('file');
+    const dropzone = document.getElementById('dropzone');
+    const fileName = document.getElementById('file-name');
+    const submit = document.getElementById('submit');
+    const status = document.getElementById('status');
+    const progressWrap = document.getElementById('progress-wrap');
+    const progress = document.getElementById('progress');
+    const progressText = document.getElementById('progress-text');
+
+    function setStatus(message, kind) {
+      status.textContent = message;
+      status.className = `status ${kind}`;
+    }
+
+    function clearStatus() {
+      status.textContent = '';
+      status.className = 'status';
+    }
+
+    function showSelectedFile() {
+      const file = fileInput.files?.[0];
+      if (!file) {
+        fileName.style.display = 'none';
+        fileName.textContent = '';
+        return;
+      }
+
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(file.size >= 1024 * 1024 ? 1 : 2);
+      fileName.textContent = `${file.name} · ${sizeMb} MB`;
+      fileName.style.display = 'block';
+    }
+
+    fileInput.addEventListener('change', showSelectedFile);
+
+    ['dragenter', 'dragover'].forEach((eventName) => {
+      dropzone.addEventListener(eventName, () => dropzone.classList.add('dragging'));
+    });
+
+    ['dragleave', 'drop'].forEach((eventName) => {
+      dropzone.addEventListener(eventName, () => dropzone.classList.remove('dragging'));
+    });
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      clearStatus();
+
+      const file = fileInput.files?.[0];
+      if (!file) {
+        setStatus('Please choose a file first.', 'error');
+        return;
+      }
+
+      if (file.size > MAX_BYTES) {
+        setStatus('That file is larger than the 25 MB limit.', 'error');
+        return;
+      }
+
+      submit.disabled = true;
+      fileInput.disabled = true;
+      progress.value = 0;
+      progressText.textContent = '0%';
+      progressWrap.style.display = 'grid';
+
+      try {
+        await upload(file.name, file, {
+          access: 'private',
+          handleUploadUrl: '/api/upload',
+          multipart: file.size > 5 * 1024 * 1024,
+          clientPayload: JSON.stringify({
+            name: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            notes: document.getElementById('notes').value,
+            website: document.getElementById('website').value,
+          }),
+          onUploadProgress({ percentage }) {
+            const value = Math.max(0, Math.min(100, Math.round(percentage)));
+            progress.value = value;
+            progressText.textContent = `${value}%`;
+          },
+        });
+
+        progress.value = 100;
+        progressText.textContent = '100%';
+        setStatus('Upload received successfully. Thank you.', 'success');
+        form.reset();
+        showSelectedFile();
+      } catch (error) {
+        console.error(error);
+        setStatus(error instanceof Error ? error.message : 'The upload failed. Please try again.', 'error');
+      } finally {
+        submit.disabled = false;
+        fileInput.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
