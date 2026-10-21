@@ -91,7 +91,6 @@
   <footer><div class="wrap">Black Tides Software LLC</div></footer>
 
   <script>
-    const STORE_URL = 'https://vercel.com/ben-quicks-projects-265e8a91/~/stores/blob/store_eVCToplWy2rjHOBs';
     const listEl = document.getElementById('list');
     const countEl = document.getElementById('count');
     const refreshBtn = document.getElementById('refresh');
@@ -150,6 +149,34 @@
       });
     }
 
+    async function deleteUpload(item, button) {
+      if (!item) return;
+      const filename = item.originalFilename || 'this upload';
+      if (!window.confirm(`Delete ${filename}?\n\nThis permanently removes both the file and its inbox record.`)) return;
+
+      const oldText = button.textContent;
+      button.disabled = true;
+      button.textContent = 'Deleting…';
+
+      try {
+        const response = await fetch('/api/inbox-delete', {
+          method: 'DELETE',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ uploadId: item.uploadId, pathname: item.pathname }),
+        });
+
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.error || `Delete failed (${response.status})`);
+
+        uploadsState = uploadsState.filter((upload) => upload.uploadId !== item.uploadId);
+        render();
+      } catch (error) {
+        button.disabled = false;
+        button.textContent = oldText;
+        window.alert(error.message || 'Unable to delete upload.');
+      }
+    }
+
     function render() {
       const uploads = sortedUploads();
       countEl.textContent = `${uploads.length} upload${uploads.length === 1 ? '' : 's'}`;
@@ -174,20 +201,16 @@
           ${item.notes ? `<div class="notes"><div class="label">Notes</div><div class="value">${escapeHtml(item.notes)}</div></div>` : ''}
           <div class="actions">
             <a class="download" href="${escapeHtml(item.downloadPath)}">Download</a>
-            <button class="manage" type="button" data-index="${index}">Manage / Delete</button>
+            <button class="manage" type="button" data-index="${index}">Delete</button>
           </div>
-          <div class="hint">Manage / Delete opens the private Vercel Blob store and copies this file's Blob path for quick lookup.</div>
+          <div class="hint">Delete removes both the uploaded file and its inbox record.</div>
         </article>
       `).join('');
 
       document.querySelectorAll('.manage').forEach((button) => {
-        button.addEventListener('click', async () => {
+        button.addEventListener('click', () => {
           const item = uploads[Number(button.dataset.index)];
-          if (!item) return;
-          try {
-            await navigator.clipboard.writeText(item.pathname || item.originalFilename || '');
-          } catch {}
-          window.open(STORE_URL, '_blank', 'noopener,noreferrer');
+          deleteUpload(item, button);
         });
       });
     }
