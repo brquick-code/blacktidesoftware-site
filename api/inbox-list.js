@@ -22,13 +22,19 @@ async function getFileDetails(pathname) {
   try {
     const details = await head(pathname);
     return {
+      exists: true,
       size: Number(details?.size || 0),
       contentType: details?.contentType || 'application/octet-stream',
       uploadedAt: details?.uploadedAt ? new Date(details.uploadedAt).toISOString() : null,
     };
   } catch (error) {
-    console.error('Failed to read blob details', pathname, error);
-    return { size: 0, contentType: 'application/octet-stream', uploadedAt: null };
+    console.warn('Blob no longer exists; hiding stale inbox metadata', pathname);
+    return {
+      exists: false,
+      size: 0,
+      contentType: 'application/octet-stream',
+      uploadedAt: null,
+    };
   }
 }
 
@@ -56,10 +62,11 @@ export default {
         })),
       );
 
-      enriched.sort((a, b) => String(b.item.uploadedAt || '').localeCompare(String(a.item.uploadedAt || '')));
+      const existing = enriched.filter(({ details }) => details.exists);
+      existing.sort((a, b) => String(b.item.uploadedAt || '').localeCompare(String(a.item.uploadedAt || '')));
 
       return json({
-        uploads: enriched.map(({ item, details }) => ({
+        uploads: existing.map(({ item, details }) => ({
           uploadId: item.uploadId,
           uploadedAt: item.uploadedAt || details.uploadedAt,
           name: item.name || '',
